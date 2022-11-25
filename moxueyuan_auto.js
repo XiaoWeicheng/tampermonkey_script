@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         自动点击我在
 // @namespace    http://bestmind.space
-// @version      0.1
+// @version      1.0
 // @description  自动点击我在
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/moxueyuan_auto.js
