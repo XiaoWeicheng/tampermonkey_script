@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name         自动点击我在
+// @name         魔学院自动点击
 // @namespace    http://bestmind.space
-// @version      1.0
-// @description  自动点击我在
+// @version      1.1
+// @description  魔学院自动点击
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/moxueyuan_auto.js
 // @updateURL    https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/moxueyuan_auto.js
-// @match        https://wanweitech.study.moxueyuan.com/new/course/*
+// @match        https://*.moxueyuan.com/new/course/*
 // @icon         https://static.moxueyuan.com/cdn/static/common/images/ht_gongkaike_icon.png
 // @grant        none
 // ==/UserScript==
