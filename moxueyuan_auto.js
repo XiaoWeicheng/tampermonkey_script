@@ -11,24 +11,21 @@
 // @grant        none
 // ==/UserScript==
 
-const sleep = async function(ms,func) {
-    await new Promise(resolve => setTimeout(resolve, ms))
-    func()
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-const observe = async function(divSelector, buttonSelector, log) {
-    while(true){
-        var div = document.querySelector(divSelector)
-        if(div){
-            var outObserver = new MutationObserver(function (mutations, observer) {
-                mutations.forEach(async function(mutation) {
-                    if(mutation.oldValue.indexOf("display: none")){
-                        observer.disconnect()
+async function observe(divSelector, buttonSelector, log) {
+    while (true) {
+        const div = document.querySelector(divSelector);
+        if (div) {
+            new MutationObserver(function (mutations, observer) {
+                console.log(mutations)
+                mutations.forEach(function (mutation) {
+                    console.log(mutation)
+                    if (mutation.oldValue.indexOf("display: none") >= 0) {
                         console.log(log)
                         document.querySelector(buttonSelector).click()
-                        sleep(60000,function(){
-                            observe(divSelector, buttonSelector, log)
-                        })
                     }
                 })
             }).observe(div, {
@@ -42,7 +39,7 @@ const observe = async function(divSelector, buttonSelector, log) {
     }
 }
 
-(function() {
+(function () {
 
     'use strict'
 
