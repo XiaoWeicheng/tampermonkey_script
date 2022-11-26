@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         魔学院自动点击
 // @namespace    http://bestmind.space
-// @version      1.2
+// @version      1.3
 // @description  魔学院自动点击
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/moxueyuan_auto.js
@@ -11,35 +11,35 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
-    const observe = function (divSelector, buttonSelector) {
-        const div = document.querySelector(divSelector)
-        const button = document.querySelector(buttonSelector)
-        const callback = function (mutations, observer) {
-            console.log(mutations)
-            mutations.forEach(function (mutation) {
-                console.log(mutation)
-                if (mutation.oldValue.indexOf("display: none") >= 0) {
-                    console.log("“"+button.innerText.trim()+"”按钮展示")
-                    button.click()
-                }
-            })
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function observe(divSelector, buttonSelector) {
+    const div = document.querySelector(divSelector)
+    const button = div.querySelector(buttonSelector)
+    new MutationObserver(function (mutations, observer) {
+        console.log(mutations)
+        for (let i in mutations) {
+            console.log(mutations[i])
+            if (mutations[i].oldValue.indexOf("display: none") >= 0) {
+                console.log("“" + button.innerText.trim() + "”按钮展示")
+                button.click()
+            }
         }
-        const option = {
-            attributes: true,
-            attributeOldValue: true,
-            attributeFilter: ['style']
-        }
-        const observer = new MutationObserver(callback)
-        observer.observe(div, option)
-        console.log("监听“"+button.innerText.trim()+"”按钮成功")
-    }
-    observe(
-        "#app > div > section > main > div > div:nth-child(7)",
-        "#app > div > section > main > div > div:nth-child(7) > div > div.el-dialog__footer > div > div > div.dialog-footer-confirmed.theme-bg-h-hover",
-    )
-    observe(
-        "#app > div > section > main > div > div:nth-child(8)",
-        "#app > div > section > main > div > div:nth-child(8) > div > div.el-dialog__footer > div > div > div",
-    )
+    }).observe(div, {
+        attributes: true, attributeOldValue: true, attributeFilter: ['style']
+    })
+    console.log("监听“" + button.innerText.trim() + "”按钮成功")
+}
+
+(async function () {
+
+    'use strict'
+
+    await sleep(10000)
+
+    observe("#app > div > section > main > div > div:nth-child(7)", "div > div.el-dialog__footer > div > div > div.dialog-footer-confirmed.theme-bg-h-hover")
+    observe("#app > div > section > main > div > div:nth-child(8)", "div > div.el-dialog__footer > div > div > div")
+
 })()
