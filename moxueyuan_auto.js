@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         魔学院自动点击
 // @namespace    http://bestmind.space
-// @version      1.3
+// @version      1.4
 // @description  魔学院自动点击
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/moxueyuan_auto.js
