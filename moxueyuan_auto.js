@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         魔学院自动点击
 // @namespace    http://bestmind.space
-// @version      1.4
+// @version      1.5
 // @description  魔学院自动点击
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/moxueyuan_auto.js
@@ -15,7 +15,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-function observe(divSelector, buttonSelector) {
+function observe(divSelector, buttonSelector, needBreak) {
     const div = document.querySelector(divSelector)
     const button = div.querySelector(buttonSelector)
     new MutationObserver(function (mutations, observer) {
@@ -25,7 +25,9 @@ function observe(divSelector, buttonSelector) {
             if (mutations[i].oldValue.indexOf("display: none") >= 0) {
                 console.log("“" + button.innerText.trim() + "”按钮展示")
                 button.click()
-                break
+                if (needBreak) {
+                    break
+                }
             }
         }
     }).observe(div, {
@@ -40,8 +42,7 @@ function observe(divSelector, buttonSelector) {
 
     await sleep(10000)
 
-    observe("#app > div > section > main > div > div:nth-child(7)", "div > div.el-dialog__footer > div > div > div.dialog-footer-confirmed.theme-bg-h-hover")
-    observe("#app > div > section > main > div > div:nth-child(8)", "div > div.el-dialog__footer > div > div > div")
+    observe("#app > div > section > main > div > div:nth-child(7)", "div > div.el-dialog__footer > div > div > div.dialog-footer-confirmed.theme-bg-h-hover", true)
+    observe("#app > div > section > main > div > div:nth-child(8)", "div > div.el-dialog__footer > div > div > div", false)
 
 })()
-
