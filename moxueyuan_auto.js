@@ -25,6 +25,7 @@ function observe(divSelector, buttonSelector) {
             if (mutations[i].oldValue.indexOf("display: none") >= 0) {
                 console.log("“" + button.innerText.trim() + "”按钮展示")
                 button.click()
+                break
             }
         }
     }).observe(div, {
@@ -43,3 +44,4 @@ function observe(divSelector, buttonSelector) {
     observe("#app > div > section > main > div > div:nth-child(8)", "div > div.el-dialog__footer > div > div > div")
 
 })()
+
