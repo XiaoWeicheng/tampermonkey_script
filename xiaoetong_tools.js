@@ -9,7 +9,7 @@
 // @match        https://admin.xiaoe-tech.com/t/*
 // @icon         https://commonresource-1252524126.cdn.xiaoeknow.com/image/lhyaurs50zil.ico
 // @grant        none
-// @require https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js
+// @require      https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js
 // ==/UserScript==
 
 let toolPanel
