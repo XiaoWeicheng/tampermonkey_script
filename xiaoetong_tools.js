@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具
 // @namespace    http://bestmind.space
-// @version      1.2
+// @version      1.3
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -146,7 +146,7 @@ function initPanel() {
     pageSize.min = '10'
     pageSize.max = '50'
     pageSize.step = '5'
-    pageSize.value = '20'
+    pageSize.value = '15'
     pageSize.size = 2
     let pageSizeSpan2 = document.createElement('span');
     pageSizeSpan.appendChild(pageSizeSpan2)
