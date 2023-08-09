@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具
 // @namespace    http://bestmind.space
-// @version      1.1
+// @version      1.2
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -9,6 +9,7 @@
 // @match        https://admin.xiaoe-tech.com/t/*
 // @icon         https://commonresource-1252524126.cdn.xiaoeknow.com/image/lhyaurs50zil.ico
 // @grant        none
+// @require https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js
 // ==/UserScript==
 
 let toolPanel
