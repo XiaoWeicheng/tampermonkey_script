@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         小鹅通工具
+// @name         小鹅通工具Ω
 // @namespace    http://bestmind.space
-// @version      1.3
+// @version      1.4
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -183,7 +183,7 @@ function initPanel() {
     nextPage.style.display = 'none'
     setStyle(nextPage)
     nextPage.onclick = function () {
-        if (Number.parseInt(page.innerText) < Number.parseInt(total.innerText) / Number.parseInt(pageSize.value) + 1) {
+        if (Number.parseInt(page.innerText) < Math.ceil(Number.parseInt(total.innerText) / Number.parseInt(pageSize.value))) {
             page.innerText = Number.parseInt(page.innerText) + 1
             loadTable()
         }
@@ -236,7 +236,7 @@ function loadTable() {
 
 function setPageContext(newTotal) {
     total.innerText = newTotal
-    let totalPage = newTotal / Number.parseInt(pageSize.value) + 1
+    let totalPage = Math.ceil(newTotal / Number.parseInt(pageSize.value))
     let currPage = Number.parseInt(page.innerText)
     prePage.style.display = currPage > 1 ? 'inline' : 'none'
     nextPage.style.display = currPage < totalPage ? 'inline' : 'none'
