@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具Ω
 // @namespace    http://bestmind.space
-// @version      1.4
+// @version      1.5
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -15,6 +15,7 @@
 let toolPanel
 let toolTableBody
 let selected = new Set()
+let checkBoxes = []
 let appId
 let password
 let expiredDate
@@ -52,9 +53,9 @@ function initPanel() {
     checkAll.innerText = '全选'
     setStyle(checkAll)
     checkAll.onclick = function () {
-        toolTable.childNodes.forEach(tr => {
-            if (!tr.firstChild.firstChild.checked) {
-                tr.firstChild.firstChild.click()
+        checkBoxes.forEach(cb => {
+            if (!cb.checkBox.checked) {
+                cb.checkBox.click()
             }
         })
     }
@@ -64,9 +65,9 @@ function initPanel() {
     checkFree.innerText = '全选免费'
     setStyle(checkFree)
     checkFree.onclick = function () {
-        toolTable.childNodes.forEach(tr => {
-            if (!tr.firstChild.firstChild.checked && tr.childNodes[1].innerText === '免费') {
-                tr.firstChild.firstChild.click()
+        checkBoxes.forEach(cb => {
+            if (!cb.checkBox.checked && cb.flag === '免费') {
+                cb.checkBox.click()
             }
         })
     }
@@ -76,9 +77,9 @@ function initPanel() {
     checkNone.innerText = '取消全选'
     setStyle(checkNone)
     checkNone.onclick = function () {
-        toolTable.childNodes.forEach(tr => {
-            if (tr.firstChild.firstChild.checked) {
-                tr.firstChild.firstChild.click()
+        checkBoxes.forEach(cb => {
+            if (cb.checkBox.checked) {
+                cb.checkBox.click()
             }
         })
     }
@@ -113,6 +114,7 @@ function initPanel() {
         }
         if (selected.size === 0) {
             alert("请选择要修改的课程")
+            return
         }
         batchModify()
     }
@@ -173,6 +175,8 @@ function initPanel() {
     prePage.onclick = function () {
         if (Number.parseInt(page.innerText) > 1) {
             page.innerText = Number.parseInt(page.innerText) - 1
+            prePage.style.display = 'none'
+            nextPage.style.display = 'none'
             loadTable()
         }
     }
@@ -185,6 +189,8 @@ function initPanel() {
     nextPage.onclick = function () {
         if (Number.parseInt(page.innerText) < Math.ceil(Number.parseInt(total.innerText) / Number.parseInt(pageSize.value))) {
             page.innerText = Number.parseInt(page.innerText) + 1
+            prePage.style.display = 'none'
+            nextPage.style.display = 'none'
             loadTable()
         }
     }
@@ -207,6 +213,8 @@ function initTable() {
 }
 
 function loadTable() {
+    selected.clear()
+    checkBoxes = []
     toolTableBody.innerText = ''
     $.get('/xe.material-center.material.summary/1.0.0', function (data, status) {
         if (status !== 'success') {
@@ -266,16 +274,19 @@ function displayCourse(course, total) {
         console.log(selected)
     }
     c1.appendChild(cb)
+
     row.appendChild(c1)
     let c2 = document.createElement('td')
     setTableStyle(c2)
-    c2.innerText = getFlag(course.is_free, course.is_password)
+    let flag = getFlag(course.is_free, course.is_password);
+    c2.innerText = flag
     row.appendChild(c2)
     let c3 = document.createElement('td')
     setTableStyle(c3)
     c3.innerText = course.title
     row.appendChild(c3)
     toolTableBody.appendChild(row)
+    checkBoxes.push({flag: flag, checkBox: cb})
 }
 
 function setTableStyle(t) {
@@ -393,4 +404,3 @@ function doModify(id, resolve) {
         console.log("部分信息获取失败 id=" + id)
         resolve()
     })
-}
