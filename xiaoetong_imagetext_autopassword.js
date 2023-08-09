@@ -6,7 +6,7 @@
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
 // @updateURL    https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
-// @match        https://*.moxueyuan.com/new/course/*
+// @match        https://admin.xiaoe-tech.com/t/*
 // @icon         https://commonresource-1252524126.cdn.xiaoeknow.com/image/lhyaurs50zil.ico
 // @grant        none
 // ==/UserScript==
