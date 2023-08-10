@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具Ω
 // @namespace    http://bestmind.space
-// @version      1.7
+// @version      1.8
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -26,13 +26,10 @@ let prePage
 let nextPage
 let tagIds = new Set()
 let tagSelectCount
+let saleType = 0
 
 let tool = document.createElement('button')
-addSpan(tool, '小')
-tool.appendChild(document.createElement('br'))
-addSpan(tool, '工')
-tool.appendChild(document.createElement('br'))
-addSpan(tool, '具')
+tool.innerHTML = '小鹅通<br>小工具'
 tool.style = 'position:fixed; top:200px; right:10px; z-index:1000001'
 tool.onclick = () => {
     if (!toolPanel) {
@@ -87,7 +84,7 @@ function initCheckOption(line) {
     addSpan(checkFree, '全选免费')
     checkFree.onclick = function () {
         checkBoxes.forEach(cb => {
-            if (!cb.checkBox.checked && cb.flag === '免费') {
+            if (!cb.checkBox.checked && cb.flag.startsWith('免费')) {
                 cb.checkBox.click()
             }
         })
@@ -107,8 +104,16 @@ function initCheckOption(line) {
 }
 
 function initModifyOption(line) {
+    let saleTypeSelect = document.createElement('select')
+    line.appendChild(saleTypeSelect)
+    saleTypeSelect.style.width = 'auto'
+
+    let saleType2Span = document.createElement('span')
+    line.appendChild(saleType2Span)
+    saleType2Span.style.display = 'none'
+
     let passwordSpan = document.createElement('span')
-    line.appendChild(passwordSpan)
+    saleType2Span.appendChild(passwordSpan)
     setStyle(passwordSpan)
     addSpan(passwordSpan, '密码')
     password = document.createElement('input')
@@ -116,20 +121,57 @@ function initModifyOption(line) {
     password.size = 15
 
     let expiredDateSpan = document.createElement('span')
-    line.appendChild(expiredDateSpan)
+    saleType2Span.appendChild(expiredDateSpan)
     setStyle(expiredDateSpan)
     addSpan(expiredDateSpan, '过期日期')
     expiredDate = document.createElement('input')
     expiredDateSpan.appendChild(expiredDate)
     expiredDate.type = 'date'
 
+    let saleTypes = [0, 2]
+    let saleTypeMap = {
+        0: {
+            name: '免费', choose: function () {
+            }, cancel: function () {
+            }, check: function () {
+                return true
+            }
+        }, 2: {
+            name: '加密', choose: function () {
+                saleType2Span.style.display = 'inline'
+            }, cancel: function () {
+                saleType2Span.style.display = 'none'
+            }, check: function () {
+                if (password.value.trim() === '' || expiredDate.value === '') {
+                    alert("请输入正确的密码与过期时间")
+                    return false
+                }
+                return true
+            }
+        }
+    }
+
+    saleTypeSelect.onchange = () => {
+        let selected = saleTypeSelect.options[saleTypeSelect.selectedIndex]
+        saleTypeMap[saleType].cancel()
+        saleType = Number.parseInt(selected.value)
+        saleTypeMap[saleType].choose()
+    }
+
+    saleTypes.forEach((st) => {
+        let op = document.createElement('option')
+        saleTypeSelect.appendChild(op)
+        op.value = st.toString()
+        addSpan(op, saleTypeMap[st].name)
+        op.selected = st === saleType
+    })
+
     let modify = document.createElement('button')
     line.appendChild(modify)
     setStyle(modify)
     addSpan(modify, '修改')
     modify.onclick = () => {
-        if (password.value.trim() === '' || expiredDate.value === '') {
-            alert("请输入正确的密码与过期时间")
+        if (!saleTypeMap[saleType].check()) {
             return
         }
         if (selected.size === 0) {
@@ -200,12 +242,9 @@ function initTags(page, selector) {
         cache: false,
         contentType: "application/json",
         data: JSON.stringify({
-            page: page,
-            page_size: 50,
-            tag_name: ''
+            page: page, page_size: 50, tag_name: ''
         }),
         success: function (data) {
-            console.log(data)
             let tagTotal = data.data.total
             addTagOptions(data.data.list, selector)
             if (page * 50 < tagTotal) {
@@ -236,7 +275,6 @@ function addTagOption(tag, selector) {
         } else {
             tagIds.add(tagId)
         }
-        console.log(tagIds)
         tagSelectCount.innerText = tagIds.size
     }
     addSpan(row, tag.tag_name).onclick = () => {
@@ -386,15 +424,15 @@ function displayCourse(course, total) {
             }
         }
     }
-    let flag = getFlag(course.is_free, course.is_password);
+    let flag = getFlag(course.is_free, course.is_password, course.period);
     checkBoxes.push({flag: flag, checkBox: cb})
-    addSpan(row, flag + '|' + course.title).onclick = () => {
+    addSpan(row, '[' + flag + ']' + course.title).onclick = () => {
         cb.click()
     }
 }
 
-function getFlag(isFree, isPassword) {
-    return isFree ? (isPassword ? '加密' : '免费') : '付费';
+function getFlag(isFree, isPassword, period) {
+    return isFree ? (isPassword ? '加密|' + (period.period_type === 1 ? period.period_value : '未知') : '免费') : '未知';
 }
 
 let builders = [function (context, resolve, reject) {
@@ -461,6 +499,21 @@ function batchModify() {
     })
 }
 
+let sellDataFulfill = {
+    0: function (sellData) {
+        sellData.period_type = 0
+        sellData.limitPurchaseType = null
+        sellData.password = null
+        sellData.period_value = ''
+    }, 2: function (sellData) {
+        sellData.is_single_sale = true
+        sellData.period_type = 1
+        sellData.limitPurchaseType = 2
+        sellData.password = password.value
+        sellData.period_value = (expiredDate.value + ' 00:00:00')
+    }
+}
+
 function doModify(id, resolve) {
     let context = {
         resource_id: id, scene: '1001', library_list: [], relation: {
@@ -476,12 +529,8 @@ function doModify(id, resolve) {
     Promise.all(promiseArr).then(() => {
         let sellData = context.goods.sell_data
         sellData.is_single_sale = true
-        sellData.sale_type = 2
-        sellData.period_type = 1
-        sellData.limitPurchaseType = 2
-        sellData.password = password.value
-        sellData.period_value = (expiredDate.value + ' 00:00:00')
-        console.log(context)
+        sellData.sale_type = saleType
+        sellDataFulfill[saleType](sellData)
         $.ajax({
             type: 'POST',
             url: "/xe.course.b_admin_w.image_text.update/1.0.0",
@@ -489,12 +538,10 @@ function doModify(id, resolve) {
             contentType: "application/json",
             data: JSON.stringify(context),
             success: function (data) {
-                console.log("修改成功 " + data)
                 resolve()
             }
         })
     }, () => {
-        console.log("部分信息获取失败 id=" + id)
         resolve()
     })
 }
