@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具Ω
 // @namespace    http://bestmind.space
-// @version      1.6
+// @version      1.7
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -239,10 +239,9 @@ function addTagOption(tag, selector) {
         console.log(tagIds)
         tagSelectCount.innerText = tagIds.size
     }
-    row.onclick = () => {
+    addSpan(row, tag.tag_name).onclick = () => {
         cb.click()
     }
-    addSpan(row, tag.tag_name)
 }
 
 function initPageOption(line) {
@@ -387,12 +386,11 @@ function displayCourse(course, total) {
             }
         }
     }
-    row.onclick = () => {
+    let flag = getFlag(course.is_free, course.is_password);
+    checkBoxes.push({flag: flag, checkBox: cb})
+    addSpan(row, flag + '|' + course.title).onclick = () => {
         cb.click()
     }
-    let flag = getFlag(course.is_free, course.is_password);
-    addSpan(row, flag + '|' + course.title)
-    checkBoxes.push({flag: flag, checkBox: cb})
 }
 
 function getFlag(isFree, isPassword) {
