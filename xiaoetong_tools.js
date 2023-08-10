@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具Ω
 // @namespace    http://bestmind.space
-// @version      1.8
+// @version      1.9
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -27,6 +27,23 @@ let nextPage
 let tagIds = new Set()
 let tagSelectCount
 let saleType = 0
+let resourceType = 1
+let resourceTypes = [1, 2, 3]
+let resourceTypeMap = {
+    1: {
+        name: '图文',
+        contentUrl: '/xe.course.b_admin_r.image_text.detail.get/1.0.0',
+        updateUrl: '/xe.course.b_admin_w.image_text.update/1.0.0'
+    }, 2: {
+        name: '音频',
+        contentUrl: '/xe.course.b_admin_r.audio.info.get/1.0.0',
+        updateUrl: '/xe.course.b_admin_w.audio.update/1.0.0'
+    }, 3: {
+        name: '视频',
+        contentUrl: '/xe.course.b_admin_r.video.info.get/1.0.0',
+        updateUrl: '/xe.course.b_admin_w.video.update/1.0.0'
+    }
+}
 
 let tool = document.createElement('button')
 tool.innerHTML = '小鹅通<br>小工具'
@@ -183,6 +200,21 @@ function initModifyOption(line) {
 }
 
 function initSearchOption(line, tagLine, lines) {
+    let resourceTypeSelect = document.createElement('select')
+    line.appendChild(resourceTypeSelect)
+    resourceTypeSelect.style.width = 'auto'
+    resourceTypeSelect.onchange = () => {
+        let selected = resourceTypeSelect.options[resourceTypeSelect.selectedIndex]
+        resourceType = Number.parseInt(selected.value)
+    }
+    resourceTypes.forEach((st) => {
+        let op = document.createElement('option')
+        resourceTypeSelect.appendChild(op)
+        op.value = st.toString()
+        addSpan(op, resourceTypeMap[st].name)
+        op.selected = st === saleType
+    })
+
     let tagButton = document.createElement('button')
     line.appendChild(tagButton)
     setStyle(tagButton)
@@ -376,7 +408,7 @@ function loadTable() {
             app_id: appId,
             page_index: Number.parseInt(page.innerText),
             page_size: Number.parseInt(pageSize.value),
-            resource_type: 1,
+            resource_type: resourceType,
             sale_status: -1,
             auth_type: -1,
             search_content: '',
@@ -436,6 +468,16 @@ function getFlag(isFree, isPassword, period) {
 }
 
 let builders = [function (context, resolve, reject) {
+    $.get(resourceTypeMap[resourceType].contentUrl, {resource_id: context.resource_id}, function (data, status) {
+        if (status !== 'success') {
+            alert("获取content失败 status=" + status)
+            reject()
+            return
+        }
+        context.content = data.data
+        resolve()
+    }, 'json')
+}, function (context, resolve, reject) {
     $.get("/xe.course.b_admin_r.resource.detail.get/1.0.0", {resource_id: context.resource_id}, function (data, status) {
         if (status !== 'success') {
             alert("获取course失败 status=" + status)
@@ -463,16 +505,6 @@ let builders = [function (context, resolve, reject) {
             return
         }
         context.app = data.data
-        resolve()
-    }, 'json')
-}, function (context, resolve, reject) {
-    $.get("/xe.course.b_admin_r.image_text.detail.get/1.0.0", {resource_id: context.resource_id}, function (data, status) {
-        if (status !== 'success') {
-            alert("获取content失败 status=" + status)
-            reject()
-            return
-        }
-        context.content = data.data
         resolve()
     }, 'json')
 }, function (context, resolve, reject) {
@@ -533,7 +565,7 @@ function doModify(id, resolve) {
         sellDataFulfill[saleType](sellData)
         $.ajax({
             type: 'POST',
-            url: "/xe.course.b_admin_w.image_text.update/1.0.0",
+            url: resourceTypeMap[resourceType].updateUrl,
             cache: false,
             contentType: "application/json",
             data: JSON.stringify(context),
