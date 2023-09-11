@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         小鹅通工具Ω
+// @name         小鹅通工具
 // @namespace    http://bestmind.space
 // @version      1.9
 // @description  小鹅通工具
@@ -300,7 +300,8 @@ function addTagOption(tag, selector) {
     let cb = document.createElement('input');
     row.appendChild(cb)
     cb.type = 'checkbox'
-    cb.onclick = () => {
+    addSpan(row, tag.tag_name).onclick = () => {
+        cb.click()
         let tagId = tag.tag_id;
         if (tagIds.has(tagId)) {
             tagIds.delete(tagId)
@@ -308,9 +309,7 @@ function addTagOption(tag, selector) {
             tagIds.add(tagId)
         }
         tagSelectCount.innerText = tagIds.size
-    }
-    addSpan(row, tag.tag_name).onclick = () => {
-        cb.click()
+        console.log("已选分组: "+ tagIds)
     }
 }
 
@@ -446,21 +445,21 @@ function displayCourse(course, total) {
     let cb = document.createElement('input')
     row.appendChild(cb)
     cb.type = 'checkbox'
-    cb.onclick = function () {
-        let courseId = course.resource_id;
-        if (selected.has(courseId)) {
-            selected.delete(courseId)
-        } else {
-            selected.add(courseId)
-            if (selected.size === total) {
-            }
-        }
-    }
     let flag = getFlag(course.is_free, course.is_password, course.period);
-    checkBoxes.push({flag: flag, checkBox: cb})
-    addSpan(row, '[' + flag + ']' + course.title).onclick = () => {
-        cb.click()
-    }
+    checkBoxes.push({
+        flag: flag, checkBox: addSpan(row, '[' + flag + ']' + course.title).onclick = () => {
+            let courseId = course.resource_id;
+            if (selected.has(courseId)) {
+                selected.delete(courseId)
+            } else {
+                selected.add(courseId)
+                if (selected.size === total) {
+                }
+            }
+            console.log("已选资源: "+ selected)
+            cb.click()
+        }
+    })
 }
 
 function getFlag(isFree, isPassword, period) {
