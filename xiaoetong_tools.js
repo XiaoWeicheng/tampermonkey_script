@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具
 // @namespace    http://bestmind.space
-// @version      2.1
+// @version      2.2
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -90,7 +90,7 @@ function initCheckOption(line) {
     checkAll.onclick = function () {
         checkBoxes.forEach(cb => {
             if (!cb.checkBox.checked) {
-                cb.checkBox.click()
+                cb.row.click()
             }
         })
     }
@@ -102,7 +102,7 @@ function initCheckOption(line) {
     checkFree.onclick = function () {
         checkBoxes.forEach(cb => {
             if (!cb.checkBox.checked && cb.flag.startsWith('免费')) {
-                cb.checkBox.click()
+                cb.row.click()
             }
         })
     }
@@ -114,7 +114,7 @@ function initCheckOption(line) {
     checkNone.onclick = function () {
         checkBoxes.forEach(cb => {
             if (cb.checkBox.checked) {
-                cb.checkBox.click()
+                cb.row.click()
             }
         })
     }
@@ -451,7 +451,7 @@ function displayCourse(course) {
     cb.style.pointerEvents = "none"
     let flag = getFlag(course.is_free, course.is_password, course.period);
     addSpan(row, '[' + flag + ']' + course.title)
-    checkBoxes.push({flag: flag, checkBox: row})
+    checkBoxes.push({flag: flag, checkBox: cb, row: row})
     row.onclick = () => {
         let courseId = course.resource_id;
         if (selected.has(courseId)) {
