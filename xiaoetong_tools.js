@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具
 // @namespace    http://bestmind.space
-// @version      2.0
+// @version      2.1
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -300,16 +300,19 @@ function addTagOption(tag, selector) {
     let cb = document.createElement('input');
     row.appendChild(cb)
     cb.type = 'checkbox'
-    addSpan(row, tag.tag_name).onclick = () => {
-        cb.click()
+    cb.style.pointerEvents = "none"
+    addSpan(row, tag.tag_name)
+    row.onclick = () => {
         let tagId = tag.tag_id;
         if (tagIds.has(tagId)) {
             tagIds.delete(tagId)
+            cb.checked = false
         } else {
             tagIds.add(tagId)
+            cb.checked = true
         }
         tagSelectCount.innerText = tagIds.size
-        console.log("已选分组: "+ tagIds)
+        console.log("已选分组: " + Array.from(tagIds))
     }
 }
 
@@ -433,11 +436,11 @@ function setPageContext(newTotal) {
 
 function displayCourses(courses) {
     courses.forEach(course => {
-        displayCourse(course, courses.length)
+        displayCourse(course)
     })
 }
 
-function displayCourse(course, total) {
+function displayCourse(course) {
     let row = document.createElement('tr')
     toolTableBody.appendChild(row)
     setStyle(row)
@@ -445,21 +448,21 @@ function displayCourse(course, total) {
     let cb = document.createElement('input')
     row.appendChild(cb)
     cb.type = 'checkbox'
+    cb.style.pointerEvents = "none"
     let flag = getFlag(course.is_free, course.is_password, course.period);
-    checkBoxes.push({
-        flag: flag, checkBox: addSpan(row, '[' + flag + ']' + course.title).onclick = () => {
-            let courseId = course.resource_id;
-            if (selected.has(courseId)) {
-                selected.delete(courseId)
-            } else {
-                selected.add(courseId)
-                if (selected.size === total) {
-                }
-            }
-            console.log("已选资源: "+ selected)
-            cb.click()
+    addSpan(row, '[' + flag + ']' + course.title)
+    checkBoxes.push({flag: flag, checkBox: row})
+    row.onclick = () => {
+        let courseId = course.resource_id;
+        if (selected.has(courseId)) {
+            selected.delete(courseId)
+            cb.checked = false
+        } else {
+            selected.add(courseId)
+            cb.checked = true
         }
-    })
+        console.log("已选资源: " + Array.from(selected))
+    }
 }
 
 function getFlag(isFree, isPassword, period) {
