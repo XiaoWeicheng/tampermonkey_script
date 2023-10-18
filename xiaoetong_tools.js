@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具
 // @namespace    http://bestmind.space
-// @version      2.2
+// @version      2.3
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
@@ -449,7 +449,7 @@ function displayCourse(course) {
     row.appendChild(cb)
     cb.type = 'checkbox'
     cb.style.pointerEvents = "none"
-    let flag = getFlag(course.is_free, course.is_password, course.period);
+    let flag = getFlag(course);
     addSpan(row, '[' + flag + ']' + course.title)
     checkBoxes.push({flag: flag, checkBox: cb, row: row})
     row.onclick = () => {
@@ -465,8 +465,11 @@ function displayCourse(course) {
     }
 }
 
-function getFlag(isFree, isPassword, period) {
-    return isFree ? (isPassword ? '加密|' + (period.period_type === 1 ? period.period_value : '未知') : '免费') : '未知';
+function getFlag(course) {
+    var isFree = course.is_free;
+    var isPassword = course.is_password;
+    var period = course.period;
+    return isFree ? (isPassword ? '加密|' + course.sell_data.password + '|' + (period.period_type === 1 ? period.period_value : '未知到期时间') : '免费') : '未知';
 }
 
 let builders = [function (context, resolve, reject) {
