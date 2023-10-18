@@ -14,6 +14,9 @@
 
 let toolPanel
 let toolTableBody
+const authTypeFree = 0
+const authTypePassword = 1
+const authTypeUnknown = -1
 let selected = new Set()
 let checkBoxes = []
 let appId
@@ -101,7 +104,7 @@ function initCheckOption(line) {
     addSpan(checkFree, '全选免费')
     checkFree.onclick = function () {
         checkBoxes.forEach(cb => {
-            if (!cb.checkBox.checked && cb.flag.startsWith('免费')) {
+            if (!cb.checkBox.checked && cb.authType === authTypeFree) {
                 cb.row.click()
             }
         })
@@ -436,11 +439,29 @@ function setPageContext(newTotal) {
 
 function displayCourses(courses) {
     courses.forEach(course => {
-        displayCourse(course)
+        let authType = getAuthType(course);
+        if (authType === authTypePassword) {
+            displayCourseForPassword(authType, course)
+        } else {
+            displayCourse(authType, course)
+        }
     })
 }
 
-function displayCourse(course) {
+function displayCourseForPassword(authType, course) {
+    $.get("/xe.course.b_admin_r.goods.info.get/1.0.0", {
+        resource_id: course.resource_id,
+    }, function (data, status) {
+        if (status !== 'success') {
+            alert("获取课程列表失败 status=" + status)
+            return
+        }
+        course.sell_data = data.data.sell_data
+        displayCourse(authType, course)
+    }, 'json')
+}
+
+function displayCourse(authType, course) {
     let row = document.createElement('tr')
     toolTableBody.appendChild(row)
     setStyle(row)
@@ -449,9 +470,8 @@ function displayCourse(course) {
     row.appendChild(cb)
     cb.type = 'checkbox'
     cb.style.pointerEvents = "none"
-    let flag = getFlag(course);
-    addSpan(row, '[' + flag + ']' + course.title)
-    checkBoxes.push({flag: flag, checkBox: cb, row: row})
+    fulfillRow(row, authType, course)
+    checkBoxes.push({authType: authType, checkBox: cb, row: row})
     row.onclick = () => {
         let courseId = course.resource_id;
         if (selected.has(courseId)) {
@@ -465,11 +485,25 @@ function displayCourse(course) {
     }
 }
 
-function getFlag(course) {
-    var isFree = course.is_free;
-    var isPassword = course.is_password;
-    var period = course.period;
-    return isFree ? (isPassword ? '加密|' + course.sell_data.password + '|' + (period.period_type === 1 ? period.period_value : '未知到期时间') : '免费') : '未知';
+function fulfillRow(row, authType, course) {
+    switch (authType) {
+        case authTypeFree:
+            addSpan(row, '[免费]')
+            break
+        case authTypePassword:
+            addSpan(row, '[加密|')
+            addSpan(row, course.sell_data.password , true)
+            let period = course.period;
+            addSpan(row, '|' + (period.period_type === 1 ? period.period_value : '未知到期时间') + ']')
+            break
+        default:
+            addSpan(row, '[未知]')
+    }
+    addSpan(row, course.title)
+}
+
+function getAuthType(course) {
+    return course.is_free ? course.is_password ? authTypePassword : authTypeFree : authTypeUnknown
 }
 
 let builders = [function (context, resolve, reject) {
@@ -587,9 +621,12 @@ function setStyle(t) {
     t.style.margin = '5px'
 }
 
-function addSpan(p, text) {
+function addSpan(p, text, highlight = false) {
     let span = document.createElement('span');
     p.appendChild(span)
     span.innerText = text
+    if( highlight){
+        span.style.color = 'red'
+    }
     return span
 }
