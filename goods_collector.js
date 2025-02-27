@@ -4,6 +4,8 @@
 // @version      1.0
 // @description  收集搜索页面的商品信息并导出为 xlsx 文件
 // @author       xiaoweicheng
+// @downloadURL  https://raw.githubusercontent.com/XiaoWeicheng/tampermonkey_script/refs/heads/main/goods_collector.js
+// @updateURL    https://raw.githubusercontent.com/XiaoWeicheng/tampermonkey_script/refs/heads/main/goods_collector.js
 // @match        https://s.taobao.com/search*
 // @match        https://www.goofish.com/search*
 // @grant        none
