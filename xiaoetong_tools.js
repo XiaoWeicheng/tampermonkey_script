@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小鹅通工具
-// @namespace    http://bestmind.space
-// @version      2.3
+// @namespace    https://ownmind.space
+// @version      2.4
 // @description  小鹅通工具
 // @author       xiaoweicheng
 // @downloadURL  https://github.com/XiaoWeicheng/tampermonkey_script/raw/main/xiaoetong_tools.js
