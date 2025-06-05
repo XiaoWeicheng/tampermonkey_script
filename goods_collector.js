@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         商品信息收集
 // @namespace    https://ownmind.space
-// @version      1.0
+// @version      1.1
 // @description  收集搜索页面的商品信息并导出为 xlsx 文件
 // @author       xiaoweicheng
 // @downloadURL  https://raw.githubusercontent.com/XiaoWeicheng/tampermonkey_script/refs/heads/main/goods_collector.js
@@ -59,7 +59,7 @@
 
         items.forEach((item, index) => {
             try {
-                let title, price, shopName, link;
+                let title, price, shopName, link, saleCount;
 
                 if (isGoofish) {
                     // 闲鱼商品信息获取
@@ -74,17 +74,21 @@
                     const priceIntElement = item.querySelector('.priceInt--yqqZMJ5a, .Price--priceInt--ZlsSi_M');
                     const priceFloatElement = item.querySelector('.priceFloat--XpixvyQ1, .Price--priceFloat--h2RR0RK');
                     const shopNameElement = item.querySelector('.shopName--hdF527QA, .ShopInfo--shopName--rg6mGmy');
+                    const saleCountElement = item.querySelector('.realSales--XZJiepmt');
 
                     title = titleElement?.textContent.trim();
                     price = parseFloat(priceIntElement?.textContent + (priceFloatElement ? priceFloatElement.textContent : ''));
                     shopName = shopNameElement?.textContent.trim();
                     link = item.href;
+                    const saleCountTextContent = saleCountElement?.textContent.trim();
+                    saleCount = parseInt(saleCountTextContent.substr(0, saleCountTextContent.indexOf('人付款')));
                 }
 
                 if (title && price && shopName) {
                     products.push({
                         '商品名称': title,
                         '价格': price,
+                        '销量': saleCount ? saleCount: 0,
                         '店铺名称': shopName,
                         '商品链接': link,
                         '采集时间': new Date().toLocaleString('zh-CN')
@@ -164,7 +168,7 @@
             }
         }
 
-        allProducts.sort((a, b) => a['价格'] - b['价格']);
+        allProducts.sort((a, b) => b['销量'] - a['销量'] !=0 ? b['销量'] - a['销量'] : a['价格'] - b['价格']);
         log(`总共收集到 ${allProducts.length} 个商品，共翻页 ${currentPage} 次`);
         return allProducts;
     }
@@ -230,6 +234,7 @@
             const wscols = [
                 { wch: 50 }, // 商品名称
                 { wch: 10 }, // 价格
+                { wch: 10 }, // 销量
                 { wch: 20 }, // 店铺名称
                 { wch: 60 }, // 商品链接
                 { wch: 20 }  // 采集时间
