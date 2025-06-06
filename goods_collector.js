@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         商品信息收集
 // @namespace    https://ownmind.space
-// @version      1.1
+// @version      1.2
 // @description  收集搜索页面的商品信息并导出为 xlsx 文件
 // @author       xiaoweicheng
 // @downloadURL  https://raw.githubusercontent.com/XiaoWeicheng/tampermonkey_script/refs/heads/main/goods_collector.js
@@ -67,7 +67,7 @@
                     const priceNumber = item.querySelector('.number--NKh1vXWM')?.textContent;
                     price = priceNumber ? parseFloat(priceNumber) : 0;
                     shopName = item.querySelector('.seller-text--Rr2Y3EbB')?.textContent.trim();
-                    link = 'https://www.goofish.com' + item.getAttribute('href');
+                    link = item.href;
                 } else {
                     // 淘宝商品信息获取
                     const titleElement = item.querySelector('.title--qJ7Xg_90, .Title--title--jCOPvpf');
